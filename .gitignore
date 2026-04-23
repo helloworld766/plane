@@ -1,0 +1,10 @@
+# 忽略VS生成的超大无用缓存文件
+.vs/
+ipch/
+Debug/
+Release/
+*.ipch
+*.pdb
+*.vcxproj.user
+*.tlog
+*.log
