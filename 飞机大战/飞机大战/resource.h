@@ -5,6 +5,7 @@
 #define IDB_PLAYER                        101
 #define IDB_BACKGROUND					  102
 #define IDB_ENEMYA						  103
+#define IDB_BULLET						  104
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
