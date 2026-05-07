@@ -1,8 +1,9 @@
-#include "resource.h"
+﻿#include "resource.h"
 
 LANGUAGE 0x0804, 0x0804
 
 IDB_PLAYER RCDATA "Player_plane.png"
 IDB_BACKGROUND RCDATA "background.png"
 IDB_ENEMYA RCDATA "EnemyA_plane.png"
-IDB_BULLET RCDATA "Normal_bullet.png"
+IDB_ENEMY_BULLET_NORMAL RCDATA "enemy_bullet_normal.png"
+IDB_PLAYER_BULLET_NORMAL RCDATA "player_bullet_normal.png"
