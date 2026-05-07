@@ -7,6 +7,7 @@
 #define IDB_ENEMYA						  103
 #define IDB_ENEMY_BULLET_NORMAL			  104
 #define IDB_PLAYER_BULLET_NORMAL		  105
+#define IDB_ENEMY_BULLET_LOW_NORMAL			  106
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

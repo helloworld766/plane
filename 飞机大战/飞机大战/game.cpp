@@ -6,7 +6,8 @@ using namespace std;
 // ======================================
 // 全局变量
 // ======================================
-int g_kill_count = 0;
+int g_kill_count = 0;//击杀数
+Plane* g_player = nullptr;//全局玩家指针
 // ======================================
 // 全局函数实现
 // ======================================
@@ -23,7 +24,7 @@ void init()
 {
     srand((unsigned)time(NULL));
     initgraph(WINDOWS_WIDTH, WINDOWS_HEIGHT);
-
+    
     // 让游戏窗口屏幕居中
     HWND hWnd = GetHWnd();   // 获取EasyX窗口句柄
     int sceenW = GetSystemMetrics(SM_CXSCREEN);
@@ -39,6 +40,7 @@ void init()
     EnemyA_plane::load_image();
     Bullet_normal_player::load_image();
     Bullet_normal_enemy::load_image();
+    Bullet_low_normal_enemy::load_image();
 }
 
 void main_loop()
@@ -52,9 +54,10 @@ void main_loop()
     loadimage(&background, RT_RCDATA, MAKEINTRESOURCE(IDB_BACKGROUND), WINDOWS_WIDTH, WINDOWS_HEIGHT);
     Player_plane* player = new Player_plane(WINDOWS_WIDTH / 2, WINDOWS_HEIGHT - 100);
     plane_list.push_back(player);
+    g_player = player;
     while (1)
     {
-        while (plane_list.size() < 10)
+        while (plane_list.size() < 7)
         {
             plane_list.push_back(new EnemyA_plane(int_dist(gen), 0));
         }
@@ -111,7 +114,8 @@ void collision(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list)
 void total_draw(vector<Bullet*>& bullet_list,vector<Plane*>& plane_list,IMAGE& background)
 {
     cleardevice();//清空
-    putimage(0, 0, &background);
+    putimage(0, 0, &background);//背景
+
     //显示击杀数
     settextstyle(50, 0, _T("微软雅黑"));//字体
     settextcolor(RED);//颜色
@@ -120,6 +124,22 @@ void total_draw(vector<Bullet*>& bullet_list,vector<Plane*>& plane_list,IMAGE& b
     string kill_text = "击杀数:" + to_string(g_kill_count);
     //显示
     outtextxy(0,0, kill_text.c_str());
+
+    //显示能量
+    settextstyle(50, 0, _T("微软雅黑"));
+    settextcolor(RED);
+    setbkmode(TRANSPARENT);
+    string skill_text;
+    if (g_player->skill_cd != 0)
+    {
+        skill_text = "能量:" + to_string(100 - g_player->current_skill_cd * 100 / g_player->skill_cd) + "%";
+    }
+    else
+    {
+        skill_text = "能量error";
+    }
+    outtextxy(0, 50, skill_text.c_str());
+
     // 显示子弹
     for (Bullet* b : bullet_list)
     {
@@ -222,10 +242,11 @@ Plane::Plane(bool Is_player,int Shoot_cd,int x, int y, int hp, IMAGE* pimg)
     is_player = Is_player;
     shoot_cd = Shoot_cd;
     current_skill_cd = 0;
-    skill_cd = 60;
-    duration_cd= 0;
+    skill_cd = 1000;
+    duration_cd= 300;
+    current_duration_cd=0;
     HP = hp;
-    duration_cd = 0;
+    speed = 5;
     current_shoot_cd= 0;
     pos[0] = x;
     pos[1] = y;
@@ -236,10 +257,10 @@ Plane::Plane(bool Is_player,int Shoot_cd,int x, int y, int hp, IMAGE* pimg)
 
 void Plane::move()
 {
-    if (GetAsyncKeyState('W') & 0x8000) pos[1] -= 5;
-    if (GetAsyncKeyState('A') & 0x8000) pos[0] -= 5;
-    if (GetAsyncKeyState('S') & 0x8000) pos[1] += 5;
-    if (GetAsyncKeyState('D') & 0x8000) pos[0] += 5;
+    if (GetAsyncKeyState('W') & 0x8000) pos[1] -= speed;
+    if (GetAsyncKeyState('A') & 0x8000) pos[0] -= speed;
+    if (GetAsyncKeyState('S') & 0x8000) pos[1] += speed;
+    if (GetAsyncKeyState('D') & 0x8000) pos[0] += speed;
 }
 
 void Plane::draw()
@@ -314,11 +335,23 @@ void Player_plane::skill()
     {
         current_skill_cd--;
     }
-    if (GetAsyncKeyState('K') & 0x8000 && current_skill_cd == 0)
+    if (current_duration_cd > 0)
     {
-        shoot_cd = shoot_cd / 2;
-        current_skill_cd = skill_cd;
+        current_duration_cd--;
+        if (current_duration_cd == 0)
+        {
+            shoot_cd = shoot_cd *5;
+            speed = speed / 3;
+        }
     }
+    if (GetAsyncKeyState('K') & 0x8000 && current_skill_cd == 0 && current_duration_cd==0)
+    {
+        shoot_cd = shoot_cd / 5;
+        speed = speed * 3;
+        current_skill_cd = skill_cd;
+        current_duration_cd = duration_cd;
+    }
+
 }
 // ======================================
 // EnemyA_plane实现
@@ -363,7 +396,14 @@ void EnemyA_plane::shoot(vector<Bullet*>& bullet_list)
     {
         int bullet_x = pos[0] + width / 2-10;
         int bullet_y = pos[1]+height;
-        bullet_list.push_back(new Bullet_normal_enemy(bullet_x, bullet_y));
+        if (rand() % 2 == 0)
+        {
+            bullet_list.push_back(new Bullet_normal_enemy(bullet_x, bullet_y));
+        }
+        else
+        {
+            bullet_list.push_back(new Bullet_low_normal_enemy(bullet_x, bullet_y));
+        }
         current_shoot_cd = shoot_cd;
     }
 }
@@ -380,6 +420,9 @@ Bullet::Bullet(bool Alive,bool Is_player, int x, int y, IMAGE* pimg)
 {
     alive = Alive;
     is_player = Is_player;
+    vx = 0;
+    vy = 15;
+    speed = 15;
     pos[0] = x;
     pos[1] = y;
     width = 20;
@@ -416,15 +459,18 @@ void Bullet_normal_player::load_image()
     loadimage(&bullet_normal_player_img, RT_RCDATA, MAKEINTRESOURCE(IDB_PLAYER_BULLET_NORMAL), 10, 30);
 }
 
-Bullet_normal_player::Bullet_normal_player(int x, int y) : Bullet(true,true,x, y, &bullet_normal_player_img) {}
+Bullet_normal_player::Bullet_normal_player(int x, int y) : Bullet(true,true,x, y, &bullet_normal_player_img)
+{
+    vy = 25;
+}
 
 void Bullet_normal_player::move()
 {
-    pos[1] -= 20;
+    pos[1] -= vy;
 }
 
 // ======================================
-// Bullet_player_enemy实现
+// Bullet_normal_enemy实现
 // ======================================
 IMAGE Bullet_normal_enemy::bullet_normal_enemy_img;
 
@@ -433,9 +479,41 @@ void Bullet_normal_enemy::load_image()
     loadimage(&bullet_normal_enemy_img, RT_RCDATA, MAKEINTRESOURCE(IDB_ENEMY_BULLET_NORMAL), 20, 20);
 }
 
-Bullet_normal_enemy::Bullet_normal_enemy(int x, int y) : Bullet(true,false,x, y, &bullet_normal_enemy_img) {}
+Bullet_normal_enemy::Bullet_normal_enemy(int x, int y) : Bullet(true,false,x, y, &bullet_normal_enemy_img)
+{
+    //用于计算vx和vy
+    double dx = g_player->pos[0] - pos[0];
+    double dy = g_player->pos[1] - pos[1];
+    double dist = sqrt(dx * dx + dy * dy);
+    if (dist < 1.0) dist = 1.0;
+
+    vx = (int)(dx / dist * speed);
+    vy = (int)(dy / dist * speed);
+}
 
 void Bullet_normal_enemy::move()
 {
-    pos[1] += 15;
+    pos[0] += vx;
+    pos[1] += vy;
+}
+// ======================================
+// Bullet_low_normal_enemy实现
+// ======================================
+IMAGE Bullet_low_normal_enemy::bullet_low_normal_enemy_img;
+
+void Bullet_low_normal_enemy::load_image()
+{
+    loadimage(&bullet_low_normal_enemy_img, RT_RCDATA, MAKEINTRESOURCE(IDB_ENEMY_BULLET_LOW_NORMAL), 20, 20);
+}
+
+Bullet_low_normal_enemy::Bullet_low_normal_enemy(int x, int y) : Bullet(true, false, x, y, &bullet_low_normal_enemy_img)
+{
+    vx = 0;
+    vy = 15;
+}
+
+void Bullet_low_normal_enemy::move()
+{
+    pos[0] += vx;
+    pos[1] += vy;
 }

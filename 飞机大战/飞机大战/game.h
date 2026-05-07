@@ -7,12 +7,13 @@
 #include<string>
 #include <vector>
 #include <algorithm>
+#include<cmath>
 
 using namespace std;
 // 宏定义
 #define WINDOWS_WIDTH  900
 #define WINDOWS_HEIGHT 900
-
+#define PI 3.1415926
 class Bullet;
 class Plane;
 // ======================================
@@ -26,12 +27,14 @@ public:
     int pos[2];
     int width;
     int height;
+    int speed;//总速度
     bool is_player;//是否是玩家飞机
     int shoot_cd;//射击冷却
     int current_shoot_cd;//射击剩余冷却
     int skill_cd;//技能冷却
     int current_skill_cd;//技能剩余冷却
     int duration_cd;//技能持续时长
+    int current_duration_cd;//技能剩余时长
     Plane(bool Is_player,int Shoot_cd,int x, int y, int hp, IMAGE* pimg);
     virtual ~Plane() = default;
     virtual void move();//移动函数
@@ -83,6 +86,9 @@ public:
     int pos[2];
     int width;
     int height;
+    int vx;//x分速度
+    int vy;//y分速度
+    int speed;
     Bullet(bool Alive,bool Is_player, int x, int y, IMAGE* pimg);
     virtual ~Bullet() = default;
     virtual void move();
@@ -111,6 +117,17 @@ public:
     static IMAGE bullet_normal_enemy_img;
     static void load_image();
     Bullet_normal_enemy(int x, int y);
+    void move() override;
+};
+// ======================================
+// 敌方低级普通子弹类声明
+// ======================================
+class Bullet_low_normal_enemy : public Bullet
+{
+public:
+    static IMAGE bullet_low_normal_enemy_img;
+    static void load_image();
+    Bullet_low_normal_enemy(int x, int y);
     void move() override;
 };
 // 全局函数声明
