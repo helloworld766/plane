@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include"common.h"
 #include <easyx.h>
 #include <Windows.h>
 #include <random>
@@ -10,10 +11,7 @@
 #include<cmath>
 
 using namespace std;
-// 宏定义
-#define WINDOWS_WIDTH  900
-#define WINDOWS_HEIGHT 900
-#define PI 3.1415926
+
 class Bullet;
 class Plane;
 // ======================================
@@ -35,6 +33,7 @@ public:
     int current_skill_cd;//技能剩余冷却
     int duration_cd;//技能持续时长
     int current_duration_cd;//技能剩余时长
+    int score;
     Plane(bool Is_player,int Shoot_cd,int x, int y, int hp, IMAGE* pimg);
     virtual ~Plane() = default;
     virtual void move();//移动函数
@@ -88,7 +87,8 @@ public:
     int height;
     int vx;//x分速度
     int vy;//y分速度
-    int speed;
+    int speed;//总速度
+    int hurt;//伤害
     Bullet(bool Alive,bool Is_player, int x, int y, IMAGE* pimg);
     virtual ~Bullet() = default;
     virtual void move();
@@ -132,8 +132,9 @@ public:
 };
 // 全局函数声明
 void draw_transparent(int x, int y, IMAGE* img);//实现飞机背景图透明
+void play();//游戏状态
 void init();//初始化
-void main_loop();//主循环
+void main_loop();//游戏主循环
 void collision(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list);//碰撞函数
 void total_draw(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list, IMAGE& background);//一次性绘制函数
 void total_move(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list);//一次性移动函数

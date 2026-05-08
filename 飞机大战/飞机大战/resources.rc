@@ -2,9 +2,13 @@
 
 LANGUAGE 0x0804, 0x0804
 
+//game
 IDB_PLAYER RCDATA "Player_plane.png"
 IDB_BACKGROUND RCDATA "background.png"
 IDB_ENEMYA RCDATA "EnemyA_plane.png"
 IDB_ENEMY_BULLET_NORMAL RCDATA "enemy_bullet_normal.png"
 IDB_PLAYER_BULLET_NORMAL RCDATA "player_bullet_normal.png"
 IDB_ENEMY_BULLET_LOW_NORMAL RCDATA "enemy_bullet_normal.png"
+
+//menu
+IDB_MENU_BACKGROUND RCDATA "menu_background.png"

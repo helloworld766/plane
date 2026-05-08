@@ -2,12 +2,19 @@
 // Microsoft Visual C++ 生成的包含文件。
 // 供 resources.rc 使用
 //
+
+//game
 #define IDB_PLAYER                        101
 #define IDB_BACKGROUND					  102
 #define IDB_ENEMYA						  103
 #define IDB_ENEMY_BULLET_NORMAL			  104
 #define IDB_PLAYER_BULLET_NORMAL		  105
-#define IDB_ENEMY_BULLET_LOW_NORMAL			  106
+#define IDB_ENEMY_BULLET_LOW_NORMAL		  106
+
+//menu
+#define IDB_MENU_BACKGROUND				  201
+
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

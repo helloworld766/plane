@@ -7,10 +7,16 @@ using namespace std;
 // 全局变量
 // ======================================
 int g_kill_count = 0;//击杀数
+int g_kill_score = 0;
 Plane* g_player = nullptr;//全局玩家指针
 // ======================================
 // 全局函数实现
 // ======================================
+void play()
+{
+    main_loop();
+}
+
 void draw_transparent(int x, int y, IMAGE* img)
 {
     HDC img_dc = GetImageHDC(img);
@@ -57,7 +63,7 @@ void main_loop()
     g_player = player;
     while (1)
     {
-        while (plane_list.size() < 7)
+        while (plane_list.size() < rand()%7)
         {
             plane_list.push_back(new EnemyA_plane(int_dist(gen), 0));
         }
@@ -74,8 +80,8 @@ void main_loop()
 
 void collision(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list)
 {
+    //子弹和飞机碰撞
     vector<Bullet*>::iterator b_it = bullet_list.begin();
-
     while (b_it != bullet_list.end())
     {
         vector<Plane*>::iterator p_it = plane_list.begin(); // 每次重置飞机迭代器
@@ -100,14 +106,42 @@ void collision(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list)
             if (is_collide)
             {
                 (*b_it)->alive = false;
-                (*p_it)->HP -= 20;
-                cout << "碰撞发生！飞机剩余血量：" << (*p_it)->HP << endl;
+                (*p_it)->HP -= (*b_it)->hurt;
                 break;
             }
             ++p_it;
         }
             ++b_it;
     }
+    //飞机与飞机碰撞
+    for (auto p1 = plane_list.begin(); p1 != plane_list.end(); ++p1)
+    {
+        // 死亡飞机不参与碰撞
+        if ((*p1)->HP <= 0) continue;
+        for (auto p2 = plane_list.begin(); p2 != plane_list.end(); ++p2)
+        {
+            // 自己不和自己碰撞
+            if (*p1 == *p2) continue;
+            // 死亡飞机不参与碰撞
+            if ((*p2)->HP <= 0) continue;
+            // 只有敌我飞机才会碰撞（友机不撞）
+            if ((*p1)->is_player == (*p2)->is_player) continue;
+            // 矩形碰撞判定（和子弹逻辑一样）
+            bool plane_collide =
+                (*p1)->pos[0] < (*p2)->pos[0] + (*p2)->width &&
+                (*p1)->pos[0] + (*p1)->width > (*p2)->pos[0] &&
+                (*p1)->pos[1] < (*p2)->pos[1] + (*p2)->height &&
+                (*p1)->pos[1] + (*p1)->height > (*p2)->pos[1];
+            if (plane_collide)
+            {
+                // 飞机相撞互相扣血
+                (*p1)->HP -= (*p1)->HP;
+                (*p2)->HP -= (*p2)->HP;
+
+            }
+        }
+    }
+
 }
 
 
@@ -125,6 +159,13 @@ void total_draw(vector<Bullet*>& bullet_list,vector<Plane*>& plane_list,IMAGE& b
     //显示
     outtextxy(0,0, kill_text.c_str());
 
+    //显示分数
+    string kill_score_tex="分数:"+to_string(g_kill_score);
+    settextstyle(50, 0, _T("微软雅黑"));
+    settextcolor(RED);
+    setbkmode(TRANSPARENT);
+    outtextxy(0, 50, kill_score_tex.c_str());
+
     //显示能量
     settextstyle(50, 0, _T("微软雅黑"));
     settextcolor(RED);
@@ -138,7 +179,7 @@ void total_draw(vector<Bullet*>& bullet_list,vector<Plane*>& plane_list,IMAGE& b
     {
         skill_text = "能量error";
     }
-    outtextxy(0, 50, skill_text.c_str());
+    outtextxy(0, 100, skill_text.c_str());
 
     // 显示子弹
     for (Bullet* b : bullet_list)
@@ -213,12 +254,15 @@ void total_cleanup(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list)
             delete (*p_it);
             p_it = plane_list.erase(p_it);
         }
-        if (!(*p_it)->is_player && (*p_it)->HP <= 0)
+        if ((*p_it)->is_player ==false && (*p_it)->HP <= 0)
         {
             //cout << "敌机被击毁！" << endl;
+            g_kill_score += (*p_it)->score;//加分数
+            g_kill_count++;//加击杀数
             delete (*p_it);
             p_it = plane_list.erase(p_it);
-            g_kill_count++;
+            
+            
         }
         else
         {
@@ -234,6 +278,8 @@ void total_skill(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list)
         p->skill();
     }
 }
+
+
 // ======================================
 // Plane基类实现
 // ======================================
@@ -253,6 +299,7 @@ Plane::Plane(bool Is_player,int Shoot_cd,int x, int y, int hp, IMAGE* pimg)
     height = 60;
     width = 60;
     img = pimg;
+    score = 0;
 }
 
 void Plane::move()
@@ -312,7 +359,10 @@ void Player_plane::load_image()
     loadimage(&player_img, RT_RCDATA, MAKEINTRESOURCE(IDB_PLAYER), 60, 60);
 }
 
-Player_plane::Player_plane(int x, int y) : Plane(true,10,x, y,100, &player_img){}
+Player_plane::Player_plane(int x, int y) : Plane(true,10,x, y,100, &player_img)
+{
+    score = 0;
+}
 
 void Player_plane::shoot(vector<Bullet*>& bullet_list)
 {
@@ -368,6 +418,7 @@ EnemyA_plane::EnemyA_plane(int x, int y) : Plane(false,60,x, y, 100, &player_img
     direction_y = (rand() % 2 == 0 ? -1 : 1);
     direction_x = (rand() % 2 == 0 ? -1 : 1);
     flash_count = 0;
+    score = 5;
 }
 
 void EnemyA_plane::move()
@@ -422,6 +473,7 @@ Bullet::Bullet(bool Alive,bool Is_player, int x, int y, IMAGE* pimg)
     is_player = Is_player;
     vx = 0;
     vy = 15;
+    hurt = 10;
     speed = 15;
     pos[0] = x;
     pos[1] = y;
@@ -462,6 +514,7 @@ void Bullet_normal_player::load_image()
 Bullet_normal_player::Bullet_normal_player(int x, int y) : Bullet(true,true,x, y, &bullet_normal_player_img)
 {
     vy = 25;
+    hurt = 25;
 }
 
 void Bullet_normal_player::move()
@@ -489,6 +542,7 @@ Bullet_normal_enemy::Bullet_normal_enemy(int x, int y) : Bullet(true,false,x, y,
 
     vx = (int)(dx / dist * speed);
     vy = (int)(dy / dist * speed);
+    hurt = 5;
 }
 
 void Bullet_normal_enemy::move()
@@ -510,6 +564,7 @@ Bullet_low_normal_enemy::Bullet_low_normal_enemy(int x, int y) : Bullet(true, fa
 {
     vx = 0;
     vy = 15;
+    hurt = 20;
 }
 
 void Bullet_low_normal_enemy::move()
