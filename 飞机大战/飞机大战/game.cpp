@@ -7,7 +7,7 @@ using namespace std;
 // 全局变量
 // ======================================
 int g_kill_count = 0;//击杀数
-int g_kill_score = 0;
+int g_kill_score = 0;//击杀分数
 Plane* g_player = nullptr;//全局玩家指针
 // ======================================
 // 全局函数实现
