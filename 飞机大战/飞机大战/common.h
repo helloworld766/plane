@@ -8,5 +8,5 @@ enum Game_state
 {
 	MENU,//菜单状态
 	PLAY,//游戏状态
-	EXIT//退出状态
+	EXIT//退出状态，111
 };
