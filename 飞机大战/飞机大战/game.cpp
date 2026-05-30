@@ -9,6 +9,9 @@ using namespace std;
 int g_kill_count = 0;//击杀数
 int g_kill_score = 0;//击杀分数
 Plane* g_player = nullptr;//全局玩家指针
+int money = 0;//全局的钱财
+bool pause = 0;
+bool keypre = 0;
 // ======================================-
 // 全局函数实现
 // ======================================
@@ -63,18 +66,30 @@ void main_loop()
     g_player = player;
     while (1)
     {
-        while (plane_list.size() < rand()%7)
-        {
-            plane_list.push_back(new EnemyA_plane(int_dist(gen), 0));
+        bool keynow = (GetAsyncKeyState('Q') & 0x8000) != 0;//按下q键，游戏会暂停。
+        if (!keypre && keynow) {
+            pause = !pause;          // 只在按下瞬间翻转一次
         }
-        total_move(bullet_list,plane_list);
-        total_shoot(bullet_list, plane_list);
-        collision(bullet_list, plane_list);
-        total_skill(bullet_list, plane_list);
-        total_check_side(bullet_list, plane_list);
-        total_cleanup(bullet_list, plane_list);
-        total_draw(bullet_list, plane_list,background);
-        Sleep(16);
+        keypre = keynow;          // 更新上一帧状态
+
+        // 游戏逻辑更新
+
+            // 如果飞机数量不足7架，就不断生成新的敌机
+        if (!pause == 1)
+        {
+            while (plane_list.size() < rand() % 7)
+            {
+                plane_list.push_back(new EnemyA_plane(int_dist(gen), 0));
+            }
+            total_move(bullet_list, plane_list);
+            total_shoot(bullet_list, plane_list);
+            collision(bullet_list, plane_list);
+            total_skill(bullet_list, plane_list);
+            total_check_side(bullet_list, plane_list);
+            total_cleanup(bullet_list, plane_list);
+            total_draw(bullet_list, plane_list, background);
+            Sleep(16);
+        }
     }
 }
 

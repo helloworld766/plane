@@ -14,6 +14,8 @@
 //menu
 #define IDB_MENU_BACKGROUND				  201
 
+//store
+#define IDB_STORE_BACKGROUND				  301
 
 // Next default values for new objects
 // 

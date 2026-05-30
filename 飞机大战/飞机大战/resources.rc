@@ -12,3 +12,6 @@ IDB_ENEMY_BULLET_LOW_NORMAL RCDATA "enemy_bullet_normal.png"
 
 //menu
 IDB_MENU_BACKGROUND RCDATA "menu_background.png"
+
+//store
+IDB_STORE_BACKGROUND RCDATA "生成中文菜单图片(1).png"
