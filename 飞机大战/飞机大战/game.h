@@ -130,6 +130,16 @@ public:
     Bullet_low_normal_enemy(int x, int y);
     void move() override;
 };
+
+//商店基类声明
+class Store_total
+{
+public:
+    int Store_record=0;
+    static void money_caculate();
+    
+};
+
 // 全局函数声明
 void draw_transparent(int x, int y, IMAGE* img);//实现飞机背景图透明
 void play();//游戏状态
@@ -142,3 +152,7 @@ void total_check_side(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list);
 void total_shoot(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list);//一次性射击
 void total_cleanup(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list);//一次性清理函数
 void total_skill(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list);//一次性技能函数
+void money_caculate();//钱财计算函数
+void ProcessMenuClick();//暂停界面函数的使用
+void  shop();//商店界面
+void tech_explore();//技能背书

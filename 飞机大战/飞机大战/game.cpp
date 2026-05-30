@@ -12,6 +12,8 @@ Plane* g_player = nullptr;//全局玩家指针
 int money = 0;//全局的钱财
 bool pause = 0;
 bool keypre = 0;
+IMAGE STORE;
+
 // ======================================-
 // 全局函数实现
 // ======================================
@@ -89,6 +91,12 @@ void main_loop()
             total_cleanup(bullet_list, plane_list);
             total_draw(bullet_list, plane_list, background);
             Sleep(16);
+        }
+        else
+        {
+            loadimage(&STORE, RT_RCDATA, MAKEINTRESOURCE(IDB_STORE_BACKGROUND), 400, 400);
+            putimage(400, 400, &STORE);
+            Store_total:: money_caculate();
         }
     }
 }
@@ -181,6 +189,13 @@ void total_draw(vector<Bullet*>& bullet_list,vector<Plane*>& plane_list,IMAGE& b
     setbkmode(TRANSPARENT);
     outtextxy(0, 50, kill_score_tex.c_str());
 
+    //显示钱财数量
+    string money_show = "钱财:" + to_string(money);
+    settextstyle(50, 0, _T("微软雅黑"));//字体
+    settextcolor(RED);//颜色
+    setbkmode(TRANSPARENT);//透明底部
+    outtextxy(0, 150, money_show.c_str());
+
     //显示能量
     settextstyle(50, 0, _T("微软雅黑"));
     settextcolor(RED);
@@ -207,6 +222,8 @@ void total_draw(vector<Bullet*>& bullet_list,vector<Plane*>& plane_list,IMAGE& b
         p->draw();
     }
     FlushBatchDraw();//加载缓存区图片到窗口
+
+    
 }
 
 void total_move(vector<Bullet*>& bullet_list,vector<Plane*>& plane_list)
@@ -274,6 +291,7 @@ void total_cleanup(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list)
             //cout << "敌机被击毁！" << endl;
             g_kill_score += (*p_it)->score;//加分数
             g_kill_count++;//加击杀数
+            money += 100;
             delete (*p_it);
             p_it = plane_list.erase(p_it);
             
@@ -587,3 +605,75 @@ void Bullet_low_normal_enemy::move()
     pos[0] += vx;
     pos[1] += vy;
 }
+
+void Store_total::money_caculate()
+{
+    static bool lastState = false;                 // 记录上一帧 W 键是否被按下
+    bool currentState = (GetAsyncKeyState('W') & 0x8000) != 0;   // 获取当前 W 键状态
+    if (currentState && !lastState && (money >= 100))                // 上升沿：刚刚按下
+    {
+        money -= 100;                              // 扣除 100 金钱
+        g_player->HP += 100; 
+        lastState = currentState; // 恢复 100 生命
+    }
+}
+//
+//
+//这个函数还没有完全设置出来。包括shop函数和tech_explore函数。
+void ProcessMenuClick()
+{
+    // 获取鼠标消息（需要 EasyX 环境）
+    MOUSEMSG msg = GetMouseMsg();
+    if (msg.uMsg == WM_LBUTTONDOWN)          // 左键按下
+    {
+        int x = msg.x, y = msg.y;
+        int choice = 0;                      // 0 表示未点到任何菜单项
+
+        // 判断点击范围（X 方向统一为 140 ~ 260）
+        if (x >= 140 && x <= 260)
+        {
+            if (y >= 120 && y <= 165)        // 继续游戏
+                choice = 1;
+            else if (y >= 175 && y <= 220)   // 商店界面
+                choice = 2;
+            else if (y >= 230 && y <= 275)   // 按键说明
+                choice = 3;
+            else if (y >= 285 && y <= 330)   // 退出游戏
+                choice = 4;
+        }
+
+        // 根据选择执行对应操作
+        switch (choice)
+        {
+        case 1:
+            pause = 0;                       // 恢复游戏
+            break;
+        case 2:
+            shop();                        // 打开商店界面
+            break;
+        case 3:
+            tech_explore();                  // 打开技能/按键说明界面
+            break;
+        case 4:
+            exit(0);                         // 退出程序
+            break;
+        default:
+            // 点击无效区域，什么都不做
+            break;
+        }
+    }
+}
+
+void  shop()//目前想要的是能够跳转到一个商店页面，里面的图片已经添加完成
+{
+
+}
+
+void tech_explore()//目前想要的是说，类似一个技术文档
+{
+
+}
+
+    
+
+
