@@ -12,7 +12,7 @@ Plane* g_player = nullptr;//全局玩家指针
 int money = 0;//全局的钱财
 bool pause = 0;
 bool keypre = 0;
-IMAGE STORE;
+
 
 // ======================================-
 // 全局函数实现
@@ -52,6 +52,7 @@ void init()
     Bullet_normal_player::load_image();
     Bullet_normal_enemy::load_image();
     Bullet_low_normal_enemy::load_image();
+    store_init();
 }
 
 void main_loop()
@@ -69,17 +70,16 @@ void main_loop()
     while (1)
     {
         bool keynow = (GetAsyncKeyState('Q') & 0x8000) != 0;//按下q键，游戏会暂停。
-        if (!keypre && keynow) {
+        if (!keypre && keynow) 
+        {
             pause = !pause;          // 只在按下瞬间翻转一次
         }
         keypre = keynow;          // 更新上一帧状态
 
         // 游戏逻辑更新
-
-            // 如果飞机数量不足7架，就不断生成新的敌机
         if (!pause == 1)
         {
-            while (plane_list.size() < rand() % 7)
+            while (plane_list.size() < rand() % 7)// 如果飞机数量不足7架，就不断生成新的敌机
             {
                 plane_list.push_back(new EnemyA_plane(int_dist(gen), 0));
             }
@@ -94,9 +94,7 @@ void main_loop()
         }
         else
         {
-            loadimage(&STORE, RT_RCDATA, MAKEINTRESOURCE(IDB_STORE_BACKGROUND), 400, 400);
-            putimage(400, 400, &STORE);
-            Store_total:: money_caculate();
+            store_show();
         }
     }
 }
@@ -187,19 +185,20 @@ void total_draw(vector<Bullet*>& bullet_list,vector<Plane*>& plane_list,IMAGE& b
     settextstyle(50, 0, _T("微软雅黑"));
     settextcolor(RED);
     setbkmode(TRANSPARENT);
-    outtextxy(0, 50, _kill_score_tex.c_str());
+    outtextxy(0, 50, kill_score_tex.c_str());
 
     //显示钱财数量
     string money_show = "钱财:" + to_string(money);
     settextstyle(50, 0, _T("微软雅黑"));//字体
     settextcolor(RED);//颜色
     setbkmode(TRANSPARENT);//透明底部
-    outtextxy(0, 150, (money_show.c_str());
+    outtextxy(0, 150, money_show.c_str());
 
     //显示能量
     settextstyle(50, 0, _T("微软雅黑"));
     settextcolor(RED);
     setbkmode(TRANSPARENT);
+
     string skill_text;
     if (g_player->skill_cd != 0)
     {
@@ -620,59 +619,7 @@ void Store_total::money_caculate()
 //
 //
 //这个函数还没有完全设置出来。包括shop函数和tech_explore函数。
-void ProcessMenuClick()
-{
-    // 获取鼠标消息（需要 EasyX 环境）
-    MOUSEMSG msg = GetMouseMsg();
-    if (msg.uMsg == WM_LBUTTONDOWN)          // 左键按下
-    {
-        int x = msg.x, y = msg.y;
-        int choice = 0;                      // 0 表示未点到任何菜单项
 
-        // 判断点击范围（X 方向统一为 140 ~ 260）
-        if (x >= 140 && x <= 260)
-        {
-            if (y >= 120 && y <= 165)        // 继续游戏
-                choice = 1;
-            else if (y >= 175 && y <= 220)   // 商店界面
-                choice = 2;
-            else if (y >= 230 && y <= 275)   // 按键说明
-                choice = 3;
-            else if (y >= 285 && y <= 330)   // 退出游戏
-                choice = 4;
-        }
-
-        // 根据选择执行对应操作
-        switch (choice)
-        {
-        case 1:
-            pause = 0;                       // 恢复游戏
-            break;
-        case 2:
-            shop();                        // 打开商店界面
-            break;
-        case 3:
-            tech_explore();                  // 打开技能/按键说明界面
-            break;
-        case 4:
-            exit(0);                         // 退出程序
-            break;
-        default:
-            // 点击无效区域，什么都不做
-            break;
-        }
-    }
-}
-
-void  shop()//目前想要的是能够跳转到一个商店页面，里面的图片已经添加完成
-{
-
-}
-
-void tech_explore()//目前想要的是说，类似一个技术文档
-{
-
-}
 
     
 

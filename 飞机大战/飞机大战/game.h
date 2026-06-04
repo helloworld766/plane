@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include"common.h"
+#include"store.h"
 #include <easyx.h>
 #include <Windows.h>
 #include <random>
@@ -9,8 +10,19 @@
 #include <vector>
 #include <algorithm>
 #include<cmath>
+#include<graphics.h>
 
 using namespace std;
+
+// ======================================
+// 全局变量
+// ======================================
+extern int g_kill_count ;//击杀数
+extern int g_kill_score ;//击杀分数
+extern class Plane* g_player ;//全局玩家指针
+extern int money ;//全局的钱财
+extern bool pause ;
+extern bool keypre;
 
 class Bullet;
 class Plane;
