@@ -187,14 +187,14 @@ void total_draw(vector<Bullet*>& bullet_list,vector<Plane*>& plane_list,IMAGE& b
     settextstyle(50, 0, _T("微软雅黑"));
     settextcolor(RED);
     setbkmode(TRANSPARENT);
-    outtextxy(0, 50, kill_score_tex.c_str());
+    outtextxy(0, 50, _kill_score_tex.c_str());
 
     //显示钱财数量
     string money_show = "钱财:" + to_string(money);
     settextstyle(50, 0, _T("微软雅黑"));//字体
     settextcolor(RED);//颜色
     setbkmode(TRANSPARENT);//透明底部
-    outtextxy(0, 150, money_show.c_str());
+    outtextxy(0, 150, (money_show.c_str());
 
     //显示能量
     settextstyle(50, 0, _T("微软雅黑"));
