@@ -51,7 +51,7 @@ static void draw()
     settextstyle(80, 0, _T("微软雅黑"));
     settextcolor(WHITE);
     setbkmode(TRANSPARENT);
-    outtextxy(WINDOWS_WIDTH / 2 - 200, 150, _T("飞机大战"));
+    outtextxy(WINDOWS_WIDTH / 2 - 240, 150, _T("飞机大战(按J选择)"));
     //绘制所有选项
     settextstyle(50, 0, _T("微软雅黑"));
     for (int i = 0; i < ITEM_COUNT; i++) 

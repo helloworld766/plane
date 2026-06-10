@@ -46,7 +46,7 @@ public:
     int duration_cd;//技能持续时长
     int current_duration_cd;//技能剩余时长
     int score;
-    Plane(bool Is_player,int Shoot_cd,int x, int y, int hp, IMAGE* pimg);
+    Plane(bool Is_player,int x, int y, int hp, IMAGE* pimg);
     virtual ~Plane() = default;
     virtual void move();//移动函数
     virtual void draw();//绘制函数

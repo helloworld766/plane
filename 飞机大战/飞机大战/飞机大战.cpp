@@ -1,14 +1,17 @@
 ﻿#include "game.h"
 #include "menu.h"
-
+#include <Windows.h>
 int main()
 {
     init();
     Game_state state;
     state=menu();
-    if (state == PLAY)
+    while(state == PLAY)
     {
-        play();
+        play();     
+        Sleep(1000);
+        state = menu();
+        Sleep(1000);
     }
     
     return 0;

@@ -20,6 +20,12 @@ bool keypre = 0;
 void play()
 {
     main_loop();
+    g_kill_count = 0;
+    g_kill_score = 0;
+    g_player = nullptr;
+    money = 0;
+    pause = 0;
+    keypre = 0;
 }
 
 void draw_transparent(int x, int y, IMAGE* img)
@@ -90,6 +96,10 @@ void main_loop()
             total_check_side(bullet_list, plane_list);
             total_cleanup(bullet_list, plane_list);
             total_draw(bullet_list, plane_list, background);
+            if (g_player->HP <= 0)
+            {
+                break;
+            }
             Sleep(16);
         }
         else
@@ -173,7 +183,7 @@ void total_draw(vector<Bullet*>& bullet_list,vector<Plane*>& plane_list,IMAGE& b
 
     //显示击杀数
     settextstyle(50, 0, _T("微软雅黑"));//字体
-    settextcolor(RED);//颜色
+    settextcolor(YELLOW);//颜色
     setbkmode(TRANSPARENT);//透明底部
     // 拼接文字 + 数字
     string kill_text = "击杀数:" + to_string(g_kill_count);
@@ -183,32 +193,38 @@ void total_draw(vector<Bullet*>& bullet_list,vector<Plane*>& plane_list,IMAGE& b
     //显示分数
     string kill_score_tex="分数:"+to_string(g_kill_score);
     settextstyle(50, 0, _T("微软雅黑"));
-    settextcolor(RED);
+    settextcolor(YELLOW);
     setbkmode(TRANSPARENT);
     outtextxy(0, 50, kill_score_tex.c_str());
 
     //显示钱财数量
     string money_show = "钱财:" + to_string(money);
     settextstyle(50, 0, _T("微软雅黑"));//字体
-    settextcolor(RED);//颜色
+    settextcolor(YELLOW);//颜色
     setbkmode(TRANSPARENT);//透明底部
     outtextxy(0, 150, money_show.c_str());
 
     //显示能量
     settextstyle(50, 0, _T("微软雅黑"));
-    settextcolor(RED);
+    settextcolor(YELLOW);
     setbkmode(TRANSPARENT);
 
     string skill_text;
     if (g_player->skill_cd != 0)
     {
-        skill_text = "能量:" + to_string(100 - g_player->current_skill_cd * 100 / g_player->skill_cd) + "%";
+        skill_text = "能量(按K强化):" + to_string(100 - g_player->current_skill_cd * 100 / g_player->skill_cd) + "%";
     }
     else
     {
         skill_text = "能量error";
     }
     outtextxy(0, 100, skill_text.c_str());
+
+    //提示
+    settextstyle(50, 0, _T("微软雅黑"));
+    settextcolor(YELLOW);
+    setbkmode(TRANSPARENT);
+    outtextxy(0, 200, "按Q进入商店");
 
     // 显示子弹
     for (Bullet* b : bullet_list)
@@ -315,10 +331,10 @@ void total_skill(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list)
 // ======================================
 // Plane基类实现
 // ======================================
-Plane::Plane(bool Is_player,int Shoot_cd,int x, int y, int hp, IMAGE* pimg)
+Plane::Plane(bool Is_player,int x, int y, int hp, IMAGE* pimg)
 {
     is_player = Is_player;
-    shoot_cd = Shoot_cd;
+    shoot_cd = 10;
     current_skill_cd = 0;
     skill_cd = 1000;
     duration_cd= 300;
@@ -391,7 +407,7 @@ void Player_plane::load_image()
     loadimage(&player_img, RT_RCDATA, MAKEINTRESOURCE(IDB_PLAYER), 60, 60);
 }
 
-Player_plane::Player_plane(int x, int y) : Plane(true,10,x, y,100, &player_img)
+Player_plane::Player_plane(int x, int y) : Plane(true,x, y,100, &player_img)
 {
     score = 0;
 }
@@ -445,12 +461,13 @@ void EnemyA_plane::load_image()
     loadimage(&player_img, RT_RCDATA, MAKEINTRESOURCE(IDB_ENEMYA), 60, 60);
 }
 
-EnemyA_plane::EnemyA_plane(int x, int y) : Plane(false,60,x, y, 100, &player_img)
+EnemyA_plane::EnemyA_plane(int x, int y) : Plane(false,x, y, 100, &player_img)
 {
     direction_y = (rand() % 2 == 0 ? -1 : 1);
     direction_x = (rand() % 2 == 0 ? -1 : 1);
     flash_count = 0;
     score = 5;
+    shoot_cd = 40;
 }
 
 void EnemyA_plane::move()
@@ -589,7 +606,7 @@ IMAGE Bullet_low_normal_enemy::bullet_low_normal_enemy_img;
 
 void Bullet_low_normal_enemy::load_image()
 {
-    loadimage(&bullet_low_normal_enemy_img, RT_RCDATA, MAKEINTRESOURCE(IDB_ENEMY_BULLET_LOW_NORMAL), 20, 20);
+    loadimage(&bullet_low_normal_enemy_img, RT_RCDATA, MAKEINTRESOURCE(IDB_ENEMY_BULLET_LOW_NORMAL), 30, 60);
 }
 
 Bullet_low_normal_enemy::Bullet_low_normal_enemy(int x, int y) : Bullet(true, false, x, y, &bullet_low_normal_enemy_img)
@@ -616,9 +633,7 @@ void Store_total::money_caculate()
         lastState = currentState; // 恢复 100 生命
     }
 }
-//
-//
-//这个函数还没有完全设置出来。包括shop函数和tech_explore函数。
+
 
 
     
