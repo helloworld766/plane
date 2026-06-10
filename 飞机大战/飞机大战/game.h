@@ -164,7 +164,3 @@ void total_check_side(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list);
 void total_shoot(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list);//一次性射击
 void total_cleanup(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list);//一次性清理函数
 void total_skill(vector<Bullet*>& bullet_list, vector<Plane*>& plane_list);//一次性技能函数
-void money_caculate();//钱财计算函数
-void ProcessMenuClick();//暂停界面函数的使用
-void  shop();//商店界面
-void tech_explore();//技能背书
